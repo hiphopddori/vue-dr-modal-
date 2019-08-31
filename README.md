@@ -2,7 +2,7 @@
 
 ## dr-modal
 
-- close , hide , resizable , minimize
+- close , hide , resizable , minimize , block , none block
 
 ## Project setup
 ```
