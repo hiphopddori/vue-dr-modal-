@@ -2,6 +2,8 @@
 
 ## dr-modal
 
+- close , hide , resizable , minimize
+
 ## Project setup
 ```
 npm install
