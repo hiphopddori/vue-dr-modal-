@@ -1,10 +1,10 @@
 <template>            
-    
-    <div v-bind:class="modalClass">
+    <div v-bind:class="modalClass">    
         <!--
         <vue-draggable-resizable :resizable="false" :x="x" :y="y" :w="resizableWidth" :h="resizableHeight" v-bind:drag-handle="dragHandler"  @dragging="onDrag" @activated="onActivated" @deactivated="onDeactivated">    
-        -->
-        <vue-draggable-resizable :prevent-deactivation="true" :resizable="false" :x="x" :y="y"  v-bind:drag-handle="dragHandler"  @dragging="onDrag" @activated="onActivated" @deactivated="onDeactivated">    
+        -->        
+        <vue-draggable-resizable :prevent-deactivation="true" :resizable="false" :x="x" :y="y"  v-bind:drag-handle="dragHandler">    
+            
             <div  class="mu-dialog" v-bind:style="{width:calcDailogWidth,height:calcDialogHeight}" style="left:0px;top:0px;">                                
                 <div v-bind:class="[handlerStyleClass , handlerControlClass]">
                     <h4 class="mu-title">{{title}}</h4>
@@ -18,24 +18,13 @@
                 </div>
                 <slot name="foot"></slot>
             </div>        
-        </vue-draggable-resizable>   
+            
+        </vue-draggable-resizable>           
     
     </div>            
-    
 </template>
 
 <script>
-
-const generateRandomString = (stringLength) => {
-        let randomString = '';
-        let randomAscii;
-        for(let i = 0; i < stringLength; i++) {
-            randomAscii = Math.floor((Math.random() * 25) + 97);
-            randomString += String.fromCharCode(randomAscii)
-        }
-        return randomString
-    }
-
 
 export default {
     name:'dr-modal',        
@@ -47,7 +36,7 @@ export default {
         },minimizedButton:{         //최소화 버튼 여부
             type:Boolean,
             default:false
-        },title:{
+        },title:{                   //Modal Title
             type:String
         }        
     },
@@ -101,39 +90,61 @@ export default {
         }
     },
     created() {
-        this.handlerControlClass = "handler_" + generateRandomString(5);
+        this.handlerControlClass = "handler_" + this.util.generateRandomString(5);
     },        
     beforeMount() {
         //한번 아래 값을 줘야지 그이후 mounted에서 적용됨 나중에 확인해보자
+        
         this.dialogWidth = this.$attrs.width;
-        this.dialogHeight = this.$attrs.height;
+        
+        if (this.$attrs.height === undefined){
+            this.dialogHeight = 'auto';
+        }else{
+            this.dialogHeight = this.$attrs.height;
+        }
 
         this.x= (window.innerWidth / 2) 
-        this.y= (window.innerHeight/ 2) 
-  
+        //this.y= (window.innerHeight/ 2) 
+        //
+        this.y=0; 
+        /* Vue-draggable-resizable 소스 y watch에서 아래 코드떄문에 y가 기존 top보다 작을경우 아예 적용이 안되게 처리 되있어서 무조건 우선 작게 잡아준다.
+           기존 TOP을 제일 작게 하기 위해 0으로 셋팅해준다.
+        const delta = this.y - this.top
+        if (delta % this.grid[1] === 0) {
+            이경우만 화면 TOP 적용되고 있음
+        }
+        */        
     },  
     mounted() {
         
-        this.dialogWidth = this.$attrs.width;
-        this.dialogHeight = this.$attrs.height;
+        //this.$nextTick(() => {
+            
+            this.dialogWidth = this.$attrs.width;
 
-        let dialogWidth;
-        let dialogHeight;
+            if (this.$attrs.height === undefined){
+                this.dialogHeight = 'auto';
+            }else{
+                this.dialogHeight = this.$attrs.height;
+            }
 
-        if (this.dialogHeight == "auto"){
-            dialogHeight = this.$el.children[0].children[0].offsetHeight
-        }else{
-            dialogHeight = this.getCalcSize("H",this.dialogHeight);
-        }
+            let dialogWidth;
+            let dialogHeight;
 
-        if (this.dialogWidth == "auto"){
-            dialogWidth = this.$el.children[0].children[0].offsetWidth;
-        }else{
-            dialogWidth = this.getCalcSize("W",this.dialogWidth);
-        }
-        
-        this.x= (window.innerWidth / 2) - (dialogWidth / 2);
-        this.y= (window.innerHeight/ 2) - (dialogHeight / 2);     
+            if (this.dialogHeight == "auto"){
+                dialogHeight = this.$el.children[0].children[0].offsetHeight
+            }else{
+                dialogHeight = this.getCalcSize("H",this.dialogHeight);
+            }
+
+            if (this.dialogWidth == "auto"){
+                dialogWidth = this.$el.children[0].children[0].offsetWidth;
+            }else{
+                dialogWidth = this.getCalcSize("W",this.dialogWidth);
+            }
+            
+            this.x= (window.innerWidth / 2) - (dialogWidth / 2);
+            this.y= (window.innerHeight/ 2) - (dialogHeight / 2);                 
+        //});
 
     },  
     methods: {
@@ -189,6 +200,7 @@ export default {
   height: 100%;
   background-color: rgba(0, 0, 0, .5);
   display: table;
-  transition: opacity 5.3s ease;
+  transition: all 0.2s ease-in;  
 }
+
 </style>
